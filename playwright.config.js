@@ -18,7 +18,7 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure'
   },
   webServer: {
-    command: 'python3 -m http.server 8000 --bind 127.0.0.1',
+    command: 'SUPABASE_URL=https://example.supabase.co SUPABASE_PUBLISHABLE_KEY=test-publishable-key npm run build && python3 -m http.server 8000 --bind 127.0.0.1 --directory dist',
     cwd: '.',
     url: 'http://127.0.0.1:8000/',
     reuseExistingServer: false,

@@ -1,7 +1,7 @@
 {
   "name": "todo-04",
   "version": "1.0.0",
-  "description": "A dependency-free, single-list todo app. Tasks are stored in the browser with `localStorage`.",
+  "description": "A cloud-synced todo app with Supabase authentication and Vercel deployment configuration.",
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
@@ -15,6 +15,10 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2"
+    "@playwright/test": "^1.58.2",
+    "esbuild": "^0.28.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.3"
   }
 }

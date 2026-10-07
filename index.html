@@ -3,19 +3,83 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A small, dependable task list saved in this browser.">
+  <meta name="description" content="A secure, cloud-synced personal task list.">
   <title>Today — Todo list</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
 <body>
   <main class="page">
-    <section class="app-card" aria-labelledby="app-title">
-      <header class="app-header">
+    <section class="app-card auth-card" id="auth-card" aria-labelledby="auth-title">
+      <header class="app-header auth-header">
         <p class="eyebrow">Personal list</p>
-        <div class="title-line">
-          <h1 id="app-title">Today</h1>
-          <p class="save-note" id="save-note">Saved in this browser</p>
+        <h1 id="auth-title">Welcome</h1>
+        <p class="auth-intro" id="auth-intro">Sign in to access your tasks from any device.</p>
+      </header>
+
+      <div class="warning" id="config-warning" role="alert" hidden>
+        <span aria-hidden="true">!</span>
+        <span>Supabase is not configured. Add the required environment variables and redeploy.</span>
+      </div>
+      <p class="auth-message" id="auth-message" role="status" aria-live="polite" hidden></p>
+
+      <div class="auth-tabs" id="auth-tabs" role="tablist" aria-label="Account access">
+        <button class="auth-tab" id="login-tab" type="button" role="tab" aria-selected="true" aria-controls="login-form">Log in</button>
+        <button class="auth-tab" id="signup-tab" type="button" role="tab" aria-selected="false" aria-controls="signup-form">Sign up</button>
+      </div>
+
+      <form class="auth-form" id="login-form" aria-labelledby="login-tab">
+        <label for="login-email">Email address</label>
+        <input class="text-input" id="login-email" name="email" type="email" autocomplete="email" required>
+        <label for="login-password">Password</label>
+        <input class="text-input" id="login-password" name="password" type="password" autocomplete="current-password" minlength="6" required>
+        <button class="primary" type="submit">Log in</button>
+        <button class="text-button" id="forgot-link" type="button">Forgot your password?</button>
+      </form>
+
+      <form class="auth-form" id="signup-form" aria-labelledby="signup-tab" hidden>
+        <label for="signup-email">Email address</label>
+        <input class="text-input" id="signup-email" name="email" type="email" autocomplete="email" required>
+        <label for="signup-password">Password</label>
+        <input class="text-input" id="signup-password" name="password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="password-help">
+        <p class="helper field-help" id="password-help">Use at least 8 characters.</p>
+        <label for="signup-confirm">Confirm password</label>
+        <input class="text-input" id="signup-confirm" name="confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+        <button class="primary" type="submit">Create account</button>
+      </form>
+
+      <form class="auth-form" id="forgot-form" aria-labelledby="forgot-title" hidden>
+        <h2 id="forgot-title">Reset your password</h2>
+        <p class="form-copy">Enter your email and we’ll send you a secure reset link.</p>
+        <label for="forgot-email">Email address</label>
+        <input class="text-input" id="forgot-email" name="email" type="email" autocomplete="email" required>
+        <button class="primary" type="submit">Send reset link</button>
+        <button class="text-button" data-back-to-login type="button">Back to login</button>
+      </form>
+
+      <form class="auth-form" id="update-password-form" aria-labelledby="update-password-title" hidden>
+        <h2 id="update-password-title">Choose a new password</h2>
+        <p class="form-copy">Your reset link was verified. Enter a new password below.</p>
+        <label for="new-password">New password</label>
+        <input class="text-input" id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+        <label for="new-password-confirm">Confirm new password</label>
+        <input class="text-input" id="new-password-confirm" name="confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+        <button class="primary" type="submit">Update password</button>
+      </form>
+    </section>
+
+    <section class="app-card" id="todo-card" aria-labelledby="app-title" hidden>
+      <header class="app-header">
+        <div class="account-row">
+          <div>
+            <p class="eyebrow">Personal list</p>
+            <h1 id="app-title">Today</h1>
+          </div>
+          <button class="secondary logout" id="logout" type="button">Log out</button>
+        </div>
+        <div class="title-line account-details">
+          <p class="save-note" id="save-note">Synced with Supabase</p>
+          <p class="user-email" id="user-email"></p>
         </div>
       </header>
 
@@ -27,7 +91,7 @@
       <form class="capture" id="task-form" aria-describedby="task-help task-error" novalidate>
         <label for="new-task">New task</label>
         <div class="capture-row">
-          <input class="text-input" id="new-task" name="task" type="text" autocomplete="off" placeholder="What needs doing?">
+          <input class="text-input" id="new-task" name="task" type="text" maxlength="500" autocomplete="off" placeholder="What needs doing?">
           <button class="primary" type="submit">Add task</button>
         </div>
         <p class="helper" id="task-help">Press Enter or choose Add task.</p>
@@ -43,7 +107,8 @@
         </nav>
       </div>
 
-      <div id="list-region" aria-live="off">
+      <div id="list-region" aria-live="off" aria-busy="false">
+        <p class="loading-state" id="loading-state">Loading your tasks…</p>
         <ul class="task-list" id="task-list" aria-label="Tasks"></ul>
         <div class="empty" id="empty-state" hidden>
           <div class="empty-mark" aria-hidden="true">＋</div>

@@ -30,6 +30,7 @@ body {
 }
 button, input { font: inherit; }
 button { cursor: pointer; }
+button:disabled { cursor: wait; opacity: .58; }
 [hidden] { display: none !important; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
@@ -44,6 +45,26 @@ button { cursor: pointer; }
   box-shadow: var(--shadow);
 }
 .app-header { padding: 30px 32px 19px; }
+.auth-card { max-width: 480px; }
+.auth-header { padding-bottom: 12px; }
+.auth-intro, .form-copy { margin: 8px 0 0; color: var(--muted); font-size: .9rem; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 4px 32px 20px; padding: 4px; border-radius: 12px; background: #f0f3f9; }
+.auth-tab { min-height: 42px; border: 0; border-radius: 9px; color: var(--muted); background: transparent; font-weight: 750; }
+.auth-tab[aria-selected="true"] { color: var(--primary); background: #fff; box-shadow: 0 1px 4px rgb(23 32 51 / .12); }
+.auth-form { display: grid; gap: 9px; padding: 0 32px 30px; }
+.auth-form h2 { margin: 2px 0 0; font: 700 1.4rem/1.7rem Georgia, serif; }
+.auth-form .form-copy { margin: -3px 0 8px; }
+.auth-form label { margin-top: 3px; font-size: .875rem; font-weight: 750; }
+.auth-form .primary { width: 100%; margin-top: 8px; }
+.field-help { margin: -4px 0 2px; }
+.text-button { min-height: 40px; padding: 6px; border: 0; color: var(--primary); background: transparent; font-size: .875rem; font-weight: 700; }
+.text-button:hover { text-decoration: underline; }
+.auth-message { margin: 0 32px 18px; padding: 11px 13px; border: 1px solid #b9dfca; border-radius: 10px; color: #236744; background: #ebf8f0; font-size: .875rem; }
+.auth-message.error { border-color: #f1c6c1; color: var(--danger); background: var(--danger-soft); }
+.account-row { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.account-details { align-items: center; margin-top: 5px; }
+.user-email { min-width: 0; margin: 8px 0 0; color: var(--muted); font-size: .8125rem; overflow-wrap: anywhere; text-align: right; }
+.logout { flex: none; }
 .eyebrow { margin: 0 0 6px; color: var(--primary); font-size: .75rem; font-weight: 800; line-height: 1rem; letter-spacing: .12em; text-transform: uppercase; }
 .title-line { display: flex; align-items: start; justify-content: space-between; gap: 18px; }
 h1 { margin: 0; font: 700 2.375rem/2.625rem Georgia, "Times New Roman", serif; letter-spacing: -.025em; }
@@ -91,6 +112,9 @@ h1 { margin: 0; font: 700 2.375rem/2.625rem Georgia, "Times New Roman", serif; l
 .empty p { margin: 0; color: var(--muted); font-size: .875rem; }
 .status-strip { display: flex; align-items: center; gap: 9px; margin: 0 20px 18px; padding: 10px 12px; border-radius: 9px; color: #233d9b; background: var(--primary-soft); font-size: .8125rem; font-weight: 650; }
 .status-strip::before { content: "✓"; font-weight: 900; }
+.status-strip.error { color: var(--danger); background: var(--danger-soft); }
+.status-strip.error::before { content: "!"; }
+.loading-state { margin: 0; padding: 34px 22px 38px; color: var(--muted); text-align: center; }
 
 .dialog { width: min(340px, calc(100% - 24px)); padding: 20px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: var(--paper); box-shadow: 0 18px 48px rgb(23 32 51 / .24); }
 .dialog::backdrop { background: rgb(23 32 51 / .48); }
@@ -107,6 +131,11 @@ h1 { margin: 0; font: 700 2.375rem/2.625rem Georgia, "Times New Roman", serif; l
   .page { padding: 12px; }
   .app-card { border-radius: 16px; }
   .app-header { padding: 20px 18px 16px; }
+  .auth-tabs { margin-inline: 18px; }
+  .auth-form { padding: 0 18px 24px; }
+  .auth-message { margin-inline: 18px; }
+  .account-details { display: block; }
+  .user-email { margin-top: 3px; text-align: left; }
   h1 { font-size: 2rem; line-height: 2.25rem; }
   .title-line { display: block; }
   .save-note { margin-top: 6px; }
