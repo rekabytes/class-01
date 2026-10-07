@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todo 04 — design preview</title>
+<style>
+  :root {
+    color-scheme: light;
+    --canvas: #eef2f8;
+    --paper: #fffdf9;
+    --ink: #172033;
+    --muted: #5d6678;
+    --line: #d8deea;
+    --primary: #3155d9;
+    --primary-hover: #2443b5;
+    --primary-soft: #e9edff;
+    --accent: #ef6a5b;
+    --danger: #b42318;
+    --danger-soft: #fff0ee;
+    --warning: #7a4d00;
+    --warning-soft: #fff4d6;
+    --focus: #0a66ff;
+    --shadow: 0 24px 60px rgb(34 51 84 / .10), 0 3px 10px rgb(34 51 84 / .06);
+  }
+  * { box-sizing: border-box; }
+  html { min-width: 0; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background-color: var(--canvas);
+    background-image:
+      linear-gradient(rgb(49 85 217 / .032) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(49 85 217 / .032) 1px, transparent 1px);
+    background-size: 28px 28px;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  button, input { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .board {
+    width: min(1180px, 100%);
+    margin-inline: auto;
+    padding: 48px 24px 72px;
+  }
+  .board-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+  .board-kicker, .eyebrow {
+    margin: 0 0 6px;
+    color: var(--primary);
+    font-size: .75rem;
+    font-weight: 800;
+    line-height: 1rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .board-title {
+    margin: 0;
+    font: 700 clamp(2rem, 6vw, 3.5rem)/1 Georgia, "Times New Roman", serif;
+    letter-spacing: -.035em;
+  }
+  .board-note {
+    max-width: 380px;
+    margin: 0;
+    color: var(--muted);
+    font-size: .875rem;
+  }
+  .specimen-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .specimen-label::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .app-card {
+    width: min(704px, 100%);
+    margin-inline: auto;
+    overflow: hidden;
+    border: 1px solid rgb(216 222 234 / .95);
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+  }
+  .app-header { padding: 30px 32px 19px; }
+  .title-line {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .app-title {
+    margin: 0;
+    font: 700 2.375rem/2.625rem Georgia, "Times New Roman", serif;
+    letter-spacing: -.025em;
+  }
+  .save-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: .8125rem;
+    white-space: nowrap;
+  }
+  .save-note::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #388a62;
+    box-shadow: 0 0 0 3px #e5f4ec;
+  }
+  .save-note.unavailable { color: var(--warning); }
+  .save-note.unavailable::before {
+    background: #b7791f;
+    box-shadow: 0 0 0 3px var(--warning-soft);
+  }
+  .warning {
+    display: flex;
+    gap: 10px;
+    margin: 0 32px 20px;
+    padding: 11px 13px;
+    border: 1px solid #efd28b;
+    border-radius: 10px;
+    color: var(--warning);
+    background: var(--warning-soft);
+    font-size: .8125rem;
+    line-height: 1.125rem;
+  }
+  .warning strong { display: block; }
+  .warning-icon {
+    flex: 0 0 auto;
+    font-weight: 900;
+  }
+  .capture { padding: 0 32px 24px; }
+  .capture label, .mini-form label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: .875rem;
+    font-weight: 750;
+  }
+  .capture-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 104px;
+    gap: 10px;
+  }
+  .text-input {
+    min-width: 0;
+    width: 100%;
+    height: 46px;
+    padding: 10px 13px;
+    border: 1px solid #aeb8ca;
+    border-radius: 10px;
+    color: var(--ink);
+    background: #fff;
+    box-shadow: inset 0 1px 2px rgb(23 32 51 / .04);
+  }
+  .text-input::placeholder { color: #70798b; }
+  .text-input:hover { border-color: #7f8ba0; }
+  .primary {
+    min-height: 44px;
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: #fff;
+    background: var(--primary);
+    font-size: .875rem;
+    font-weight: 750;
+    box-shadow: 0 5px 12px rgb(49 85 217 / .20);
+  }
+  .primary:hover:not(:disabled) { background: var(--primary-hover); }
+  .primary:active:not(:disabled) { transform: translateY(1px); }
+  .primary:disabled { opacity: .55; box-shadow: none; }
+  .helper, .error-text {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: .8125rem;
+    line-height: 1.125rem;
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 62px;
+    padding: 10px 20px;
+    border-block: 1px solid var(--line);
+    background: #fafbfe;
+  }
+  .count {
+    margin: 0;
+    color: var(--muted);
+    font-size: .875rem;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .filters {
+    display: flex;
+    gap: 4px;
+  }
+  .filter {
+    min-height: 40px;
+    min-width: 56px;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    color: #4c5669;
+    background: transparent;
+    font-size: .8125rem;
+    font-weight: 750;
+  }
+  .filter:hover { background: #f0f3f9; }
+  .filter[aria-pressed="true"] {
+    color: var(--primary);
+    border-color: #cbd4ff;
+    background: var(--primary-soft);
+    box-shadow: inset 0 0 0 1px rgb(49 85 217 / .10);
+  }
+  .task-list { margin: 0; padding: 0; list-style: none; }
+  .task {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .task:hover { background: #f8faff; }
+  .task-check {
+    width: 24px;
+    height: 24px;
+    margin: 1px 0 0;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+  .task-title {
+    min-width: 0;
+    padding-top: 0;
+    font-size: 1rem;
+    font-weight: 540;
+    line-height: 1.5rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    cursor: pointer;
+  }
+  .task-check:checked + .task-title {
+    color: #687184;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+  }
+  .delete {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: var(--danger);
+    background: transparent;
+    font-size: .8125rem;
+    font-weight: 750;
+  }
+  .delete:hover { border-color: #f1c6c1; background: var(--danger-soft); }
+  .card-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 20px;
+  }
+  .clear {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: var(--danger);
+    background: transparent;
+    font-size: .8125rem;
+    font-weight: 750;
+  }
+  .clear:hover { border-color: #f1c6c1; background: var(--danger-soft); }
+  .status-strip {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 20px 18px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    color: #233d9b;
+    background: var(--primary-soft);
+    font-size: .8125rem;
+    font-weight: 650;
+  }
+  .status-strip::before { content: "✓"; font-weight: 900; }
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start;
+    gap: 42px;
+    margin-top: 48px;
+  }
+  .desktop-shell { min-width: 0; }
+  .phone-frame { width: 320px; }
+  .phone-frame .app-card {
+    width: 320px;
+    border-radius: 16px;
+    box-shadow: 0 18px 42px rgb(34 51 84 / .13);
+  }
+  .phone-frame .app-header { padding: 20px 18px 16px; }
+  .phone-frame .app-title { font-size: 2rem; line-height: 2.25rem; }
+  .phone-frame .save-note { margin-top: 5px; }
+  .phone-frame .capture { padding: 0 18px 18px; }
+  .phone-frame .capture-row { grid-template-columns: 1fr; }
+  .phone-frame .primary { width: 100%; }
+  .phone-frame .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 18px;
+  }
+  .phone-frame .filters { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .phone-frame .filter { min-width: 0; padding-inline: 7px; }
+  .empty {
+    padding: 34px 22px 38px;
+    text-align: center;
+  }
+  .empty-mark {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 13px;
+    border-radius: 13px;
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+  .empty h3 { margin: 0 0 4px; font: 700 1.25rem/1.5rem Georgia, serif; }
+  .empty p { margin: 0; color: var(--muted); font-size: .875rem; }
+  .state-section { margin-top: 64px; }
+  .section-title {
+    margin: 0 0 8px;
+    font: 700 2rem/2.25rem Georgia, "Times New Roman", serif;
+    letter-spacing: -.02em;
+  }
+  .section-copy { margin: 0 0 22px; color: var(--muted); }
+  .state-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .state-card {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgb(255 253 249 / .92);
+    box-shadow: 0 8px 24px rgb(34 51 84 / .06);
+  }
+  .state-name {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .mini-form .capture-row { grid-template-columns: minmax(0, 1fr) 104px; }
+  .text-input[aria-invalid="true"] {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 1px var(--danger);
+  }
+  .error-text { color: var(--danger); font-weight: 650; }
+  .mini-empty {
+    padding: 22px 12px 8px;
+    text-align: center;
+  }
+  .mini-empty .empty-mark { margin-bottom: 10px; }
+  .mini-empty h3 { margin: 0 0 4px; font: 700 1.125rem/1.4 Georgia, serif; }
+  .mini-empty p { margin: 0; color: var(--muted); font-size: .8125rem; }
+  .dialog-backdrop {
+    display: grid;
+    place-items: center;
+    min-height: 224px;
+    padding: 20px;
+    border-radius: 12px;
+    background: rgb(23 32 51 / .30);
+  }
+  .dialog {
+    width: min(340px, 100%);
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--paper);
+    box-shadow: 0 18px 48px rgb(23 32 51 / .24);
+  }
+  .dialog h3 { margin: 0 0 6px; font: 700 1.25rem/1.5 Georgia, serif; }
+  .dialog p { margin: 0; color: var(--muted); font-size: .875rem; }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .secondary, .danger-button {
+    min-height: 42px;
+    padding: 9px 14px;
+    border-radius: 9px;
+    font-size: .875rem;
+    font-weight: 750;
+  }
+  .secondary { border: 1px solid #9faabd; color: var(--ink); background: #fff; }
+  .secondary:hover { background: #f3f5f9; }
+  .danger-button { border: 1px solid var(--danger); color: #fff; background: var(--danger); }
+  .danger-button:hover { background: #8e1b13; }
+  .token-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .token-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    background: var(--paper);
+    font-size: .75rem;
+  }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--swatch); }
+  .preview-only {
+    margin-top: 22px;
+    color: var(--muted);
+    font-size: .75rem;
+    text-align: center;
+  }
+  @media (max-width: 900px) {
+    .showcase-grid { grid-template-columns: 1fr; }
+    .phone-frame { margin-inline: auto; }
+  }
+  @media (max-width: 620px) {
+    .board { padding: 28px 12px 48px; }
+    .board-header { display: block; }
+    .board-note { margin-top: 12px; }
+    .app-card { border-radius: 16px; }
+    .app-header { padding: 22px 18px 16px; }
+    .app-title { font-size: 2rem; line-height: 2.25rem; }
+    .title-line { display: block; }
+    .save-note { margin-top: 6px; }
+    .warning { margin: 0 18px 18px; }
+    .capture { padding: 0 18px 18px; }
+    .capture-row, .mini-form .capture-row { grid-template-columns: 1fr; }
+    .primary { width: 100%; }
+    .toolbar { align-items: stretch; flex-direction: column; gap: 8px; padding: 12px 18px; }
+    .filters { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .filter { min-width: 0; padding-inline: 7px; }
+    .task { grid-template-columns: 28px minmax(0, 1fr); padding: 15px 18px; }
+    .task .delete { grid-column: 2; justify-self: start; margin-top: 2px; }
+    .card-footer { padding: 12px 18px; }
+    .clear { width: 100%; }
+    .status-strip { margin-inline: 18px; }
+    .showcase-grid { gap: 34px; margin-top: 34px; }
+    .state-grid { grid-template-columns: 1fr; }
+    .phone-frame, .phone-frame .app-card { width: min(320px, 100%); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    button, input { transition: color .14s ease, background-color .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease; }
+  }
+  @media (forced-colors: active) {
+    .save-note::before, .specimen-label::before, .swatch { forced-color-adjust: none; }
+    .filter[aria-pressed="true"] { outline: 2px solid ButtonText; }
+  }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-header">
+    <div>
+      <p class="board-kicker">Todo 04 · interface study</p>
+      <h1 class="board-title">A clear place to finish.</h1>
+    </div>
+    <p class="board-note">Static design preview. Controls are intentionally inert, but native controls can be focused to inspect keyboard treatment.</p>
+  </header>
+
+  <div class="showcase-grid">
+    <section class="desktop-shell" aria-labelledby="desktop-label">
+      <p class="specimen-label" id="desktop-label">Desktop · populated / all</p>
+      <article class="app-card" aria-labelledby="app-title-main">
+        <header class="app-header">
+          <p class="eyebrow">Personal list</p>
+          <div class="title-line">
+            <h2 class="app-title" id="app-title-main">Today</h2>
+            <p class="save-note unavailable">Not saving</p>
+          </div>
+        </header>
+
+        <div class="warning" role="status">
+          <span class="warning-icon" aria-hidden="true">!</span>
+          <span><strong>Browser storage is unavailable.</strong> Changes won’t be saved after you close this page.</span>
+        </div>
+
+        <form class="capture" action="#" onsubmit="return false" aria-describedby="task-help-main">
+          <label for="new-task-main">New task</label>
+          <div class="capture-row">
+            <input class="text-input" id="new-task-main" name="task" type="text" autocomplete="off" placeholder="What needs doing?">
+            <button class="primary" type="submit">Add task</button>
+          </div>
+          <p class="helper" id="task-help-main">Press Enter or choose Add task.</p>
+        </form>
+
+        <div class="toolbar">
+          <p class="count">2 tasks left</p>
+          <nav class="filters" aria-label="Task filters">
+            <button class="filter" type="button" aria-pressed="true">All</button>
+            <button class="filter" type="button" aria-pressed="false">Active</button>
+            <button class="filter" type="button" aria-pressed="false">Completed</button>
+          </nav>
+        </div>
+
+        <ul class="task-list" aria-label="Tasks">
+          <li class="task">
+            <input class="task-check" id="task-1" type="checkbox">
+            <label class="task-title" for="task-1">Send the revised accessibility notes to the team</label>
+            <button class="delete" type="button" aria-label="Delete Send the revised accessibility notes to the team">Delete</button>
+          </li>
+          <li class="task">
+            <input class="task-check" id="task-2" type="checkbox" checked>
+            <label class="task-title" for="task-2">Pick up oat milk</label>
+            <button class="delete" type="button" aria-label="Delete Pick up oat milk">Delete</button>
+          </li>
+          <li class="task">
+            <input class="task-check" id="task-3" type="checkbox">
+            <label class="task-title" for="task-3">Review quarterly-planning-notes-with-an-intentionally-long-unbroken-reference-2026-final</label>
+            <button class="delete" type="button" aria-label="Delete Review quarterly planning notes">Delete</button>
+          </li>
+        </ul>
+        <footer class="card-footer">
+          <button class="clear" type="button" aria-label="Clear all completed tasks">Clear completed</button>
+        </footer>
+        <div class="status-strip" role="status" aria-live="polite" aria-atomic="true">Task completed.</div>
+      </article>
+    </section>
+
+    <section class="phone-frame" aria-labelledby="mobile-label">
+      <p class="specimen-label" id="mobile-label">Mobile · 320px / zero match</p>
+      <article class="app-card" aria-labelledby="app-title-phone">
+        <header class="app-header">
+          <p class="eyebrow">Personal list</p>
+          <h2 class="app-title" id="app-title-phone">Today</h2>
+          <p class="save-note">Saved in this browser</p>
+        </header>
+        <form class="capture" action="#" onsubmit="return false">
+          <label for="new-task-phone">New task</label>
+          <div class="capture-row">
+            <input class="text-input" id="new-task-phone" type="text" placeholder="What needs doing?">
+            <button class="primary" type="submit">Add task</button>
+          </div>
+        </form>
+        <div class="toolbar">
+          <p class="count">2 tasks left</p>
+          <nav class="filters" aria-label="Mobile task filters">
+            <button class="filter" type="button" aria-pressed="false">All</button>
+            <button class="filter" type="button" aria-pressed="false">Active</button>
+            <button class="filter" type="button" aria-pressed="true">Completed</button>
+          </nav>
+        </div>
+        <div class="empty">
+          <div class="empty-mark" aria-hidden="true">✓</div>
+          <h3>No completed tasks yet</h3>
+          <p>Completed tasks will appear here.</p>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <section class="state-section" aria-labelledby="states-title">
+    <p class="specimen-label">Component states</p>
+    <h2 class="section-title" id="states-title">Clear in every moment.</h2>
+    <p class="section-copy">Validation, first use, pending action, and destructive confirmation use the same small set of tokens.</p>
+
+    <div class="state-grid">
+      <article class="state-card">
+        <h3 class="state-name">Blank submission · focus/error</h3>
+        <form class="mini-form" action="#" onsubmit="return false" aria-describedby="task-error-demo">
+          <label for="new-task-error">New task</label>
+          <div class="capture-row">
+            <input class="text-input" id="new-task-error" type="text" aria-invalid="true" value="   ">
+            <button class="primary" type="submit">Add task</button>
+          </div>
+          <p class="error-text" id="task-error-demo">Enter a task before adding.</p>
+        </form>
+      </article>
+
+      <article class="state-card">
+        <h3 class="state-name">First use · no tasks</h3>
+        <div class="mini-empty">
+          <div class="empty-mark" aria-hidden="true">＋</div>
+          <h3>No tasks yet</h3>
+          <p>Add your first task above.</p>
+        </div>
+      </article>
+
+      <article class="state-card">
+        <h3 class="state-name">Submit · truly pending</h3>
+        <div class="mini-form">
+          <label for="new-task-disabled">New task</label>
+          <div class="capture-row">
+            <input class="text-input" id="new-task-disabled" type="text" value="Book dentist appointment">
+            <button class="primary" type="button" disabled>Adding…</button>
+          </div>
+          <p class="helper">Disabled only while a submission is actually pending.</p>
+        </div>
+      </article>
+
+      <article class="state-card">
+        <h3 class="state-name">Delete · confirmation</h3>
+        <div class="dialog-backdrop">
+          <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-body">
+            <h3 id="dialog-title">Delete this task?</h3>
+            <p id="dialog-body">“Pick up oat milk” will be removed from this list.</p>
+            <div class="dialog-actions">
+              <button class="secondary" type="button">Cancel</button>
+              <button class="danger-button" type="button">Delete task</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="token-row" aria-label="Core color tokens">
+      <span class="token-chip"><span class="swatch" style="--swatch:#3155d9"></span>Primary #3155D9</span>
+      <span class="token-chip"><span class="swatch" style="--swatch:#172033"></span>Ink #172033</span>
+      <span class="token-chip"><span class="swatch" style="--swatch:#ef6a5b"></span>Accent #EF6A5B</span>
+      <span class="token-chip"><span class="swatch" style="--swatch:#b42318"></span>Danger #B42318</span>
+      <span class="token-chip"><span class="swatch" style="--swatch:#fff4d6;border:1px solid #efd28b"></span>Warning #FFF4D6</span>
+    </div>
+  </section>
+  <p class="preview-only">Design preview only · no todo application logic is included</p>
+</main>
+</body>
+</html>

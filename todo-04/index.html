@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A small, dependable task list saved in this browser.">
+  <title>Today — Todo list</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="page">
+    <section class="app-card" aria-labelledby="app-title">
+      <header class="app-header">
+        <p class="eyebrow">Personal list</p>
+        <div class="title-line">
+          <h1 id="app-title">Today</h1>
+          <p class="save-note" id="save-note">Saved in this browser</p>
+        </div>
+      </header>
+
+      <div class="warning" id="storage-warning" role="status" hidden>
+        <span aria-hidden="true">!</span>
+        <span id="storage-warning-text"></span>
+      </div>
+
+      <form class="capture" id="task-form" aria-describedby="task-help task-error" novalidate>
+        <label for="new-task">New task</label>
+        <div class="capture-row">
+          <input class="text-input" id="new-task" name="task" type="text" autocomplete="off" placeholder="What needs doing?">
+          <button class="primary" type="submit">Add task</button>
+        </div>
+        <p class="helper" id="task-help">Press Enter or choose Add task.</p>
+        <p class="error-text" id="task-error" hidden>Enter a task before adding.</p>
+      </form>
+
+      <div class="toolbar" id="toolbar">
+        <p class="count"><span id="remaining-count">0 tasks left</span><span class="total-count" id="total-count">0 total</span></p>
+        <nav class="filters" id="filters" aria-label="Task filters">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter" type="button" data-filter="active" aria-pressed="false">Active</button>
+          <button class="filter" type="button" data-filter="completed" aria-pressed="false">Completed</button>
+        </nav>
+      </div>
+
+      <div id="list-region" aria-live="off">
+        <ul class="task-list" id="task-list" aria-label="Tasks"></ul>
+        <div class="empty" id="empty-state" hidden>
+          <div class="empty-mark" aria-hidden="true">＋</div>
+          <h2 id="empty-title">No tasks yet</h2>
+          <p id="empty-copy">Add your first task above.</p>
+        </div>
+      </div>
+
+      <footer class="card-footer" id="card-footer" hidden>
+        <button class="clear" id="clear-completed" type="button" aria-label="Clear all completed tasks">Clear completed</button>
+      </footer>
+      <p class="status-strip" id="action-status" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+    </section>
+  </main>
+
+  <dialog class="dialog" id="confirm-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-body">
+    <h2 id="dialog-title">Delete this task?</h2>
+    <p id="dialog-body"></p>
+    <div class="dialog-actions">
+      <button class="secondary" id="dialog-cancel" type="button">Cancel</button>
+      <button class="danger-button" id="dialog-confirm" type="button">Delete task</button>
+    </div>
+  </dialog>
+</body>
+</html>
